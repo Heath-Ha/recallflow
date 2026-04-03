@@ -86,6 +86,31 @@ const DeckManager = {
         return { success: true };
     },
     
+    // 덱 순서 변경
+    reorderDeck(deckName, direction) {
+        const decks = this.getAllDecks();
+        const index = decks.findIndex(d => d.name === deckName);
+        if (index === -1) return false;
+        
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= decks.length) return false;
+        
+        [decks[index], decks[newIndex]] = [decks[newIndex], decks[index]];
+        this.saveDecks(decks);
+        return true;
+    },
+
+    // 덱 순서 직접 저장 (드래그앤드롭용)
+    saveReorderedDecks(newOrder) {
+        const decks = this.getAllDecks();
+        const reordered = newOrder.map(name => decks.find(d => d.name === name)).filter(Boolean);
+        // 빠진 덱이 있으면 뒤에 추가
+        decks.forEach(d => {
+            if (!reordered.find(r => r.name === d.name)) reordered.push(d);
+        });
+        this.saveDecks(reordered);
+    },
+
     // 덱 이름 변경
     renameDeck(deckName, newDisplayName) {
         const decks = this.getAllDecks();
